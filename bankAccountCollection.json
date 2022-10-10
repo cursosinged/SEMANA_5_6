@@ -1,0 +1,65 @@
+[{
+  "_id": {
+    "$numberLong": "1462611600731217353"
+  },
+  "accountName": "Cambio dato por prueba unitaria",
+  "userName": "user3@wizeline.com",
+  "accountBalance": 8993.803242237242,
+  "accountType": "AHORRO",
+  "country": "Mexico",
+  "accountActive": true,
+  "creationDate": {
+    "$date": {
+      "$numberLong": "1665360104786"
+    }
+  },
+  "_class": "com.wizeline.maven.learningjavamaven.model.BankAccountDTO"
+},{
+  "_id": {
+    "$numberLong": "-1757815591563318865"
+  },
+  "accountName": "Dummy Account 6",
+  "userName": "user3@wizeline.com",
+  "accountBalance": 5564.992791219431,
+  "accountType": "PLATINUM",
+  "country": "Mexico",
+  "accountActive": true,
+  "creationDate": {
+    "$date": {
+      "$numberLong": "1665360539849"
+    }
+  },
+  "_class": "com.wizeline.maven.learningjavamaven.model.BankAccountDTO"
+},{
+  "_id": {
+    "$numberLong": "9008979452415830714"
+  },
+  "accountName": "Dummy Account 3",
+  "userName": "user1@wizeline.com",
+  "accountBalance": 6283.140024135507,
+  "accountType": "PLATINUM",
+  "country": "France",
+  "accountActive": false,
+  "creationDate": {
+    "$date": {
+      "$numberLong": "1660090139884"
+    }
+  },
+  "_class": "com.wizeline.maven.learningjavamaven.model.BankAccountDTO"
+},{
+  "_id": {
+    "$numberLong": "-333186411732343107"
+  },
+  "accountName": "Dummy Account 7",
+  "userName": "user2@wizeline.com",
+  "accountBalance": 3998.4294146115412,
+  "accountType": "PLATINUM",
+  "country": "United States",
+  "accountActive": false,
+  "creationDate": {
+    "$date": {
+      "$numberLong": "1539130139886"
+    }
+  },
+  "_class": "com.wizeline.maven.learningjavamaven.model.BankAccountDTO"
+}]

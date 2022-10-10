@@ -1,0 +1,262 @@
+{
+	"info": {
+		"_postman_id": "0b1ace4c-1483-4b4a-a633-a18c1e4af292",
+		"name": "MODULO3_Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23308360"
+	},
+	"item": [
+		{
+			"name": "api/getAccountByUser",
+			"protocolProfileBehavior": {
+				"strictSSL": false
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getAccountByUser?user=user1@wizeline.com",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getAccountByUser"
+					],
+					"query": [
+						{
+							"key": "user",
+							"value": "user1@wizeline.com"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "api/getAccounts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getAccounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getAccounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "jaxb/getXML",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/jaxb/getXML",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"jaxb",
+						"getXML"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createUser",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"user\":\"user3@wizeline.com\",\"password\":\"pass1@\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/createUser",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"createUser"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createUsers",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\r\n  \"user\": \"user1@wizeline.com\",\r\n  \"password\": \"Pass1@\"\r\n},\r\n  {\r\n    \"user\": \"user2@wizeline.com\",\r\n    \"password\": \"pass2\"\r\n  }]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/createUsers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"createUsers"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getUserAccount",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getUserAccount?user=user1@wizeline.com&password=Pass1@&date=12-03-2018",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getUserAccount"
+					],
+					"query": [
+						{
+							"key": "user",
+							"value": "user1@wizeline.com"
+						},
+						{
+							"key": "password",
+							"value": "Pass1@"
+						},
+						{
+							"key": "date",
+							"value": "12-03-2018"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/login?user=user2@wizeline.com&password=pass2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"login"
+					],
+					"query": [
+						{
+							"key": "user",
+							"value": "user2@wizeline.com"
+						},
+						{
+							"key": "password",
+							"value": "pass2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getAccountsGroupByType",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getAccountsGroupByType",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getAccountsGroupByType"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "deleteAccounts",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/deleteAccounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"deleteAccounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getExternalUser",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/getExternalUser/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"getExternalUser",
+						"1"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
