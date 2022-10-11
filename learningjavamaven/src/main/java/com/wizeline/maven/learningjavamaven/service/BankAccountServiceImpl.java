@@ -22,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.mongodb.client.result.UpdateResult;
 import com.wizeline.maven.learningjavamaven.enums.Country;
 import com.wizeline.maven.learningjavamaven.model.BankAccountDTO;
 import com.wizeline.maven.learningjavamaven.repository.BankingAccountRepository;
@@ -43,8 +45,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public List<BankAccountDTO> getAccounts() {
 		// Definicion de lista con la informacion de las cuentas existentes.
 		List<BankAccountDTO> accountDTOList = new ArrayList<>();
-		BankAccountDTO bankAccountOne = buildBankAccount("user3@wizeline.com", true, Country.MX,
-				LocalDateTime.now());
+		BankAccountDTO bankAccountOne = buildBankAccount("user3@wizeline.com", true, Country.MX, LocalDateTime.now());
 		accountDTOList.add(bankAccountOne);
 
 		// Guardar cada record en la db de mongo (en la coleccion bankAccountCollection)
@@ -81,12 +82,12 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public void deleteAccounts() {
 		// Borrar todos los records que esten dentro de la coleccion
 		// bankAccountCollection en mongo db.
-	//	bankAccountRepository.deleteAll();
+		// bankAccountRepository.deleteAll();
 		Query query = new Query();
-		query.addCriteria(Criteria.where("_id").exists(true));  ///Query para borrar todos los registros.
-		
+		query.addCriteria(Criteria.where("_id").exists(true)); /// Query para borrar todos los registros.
+
 		mongoTemplate.remove(query, "bankAccountCollection");
-		
+
 	}
 
 	@Override
@@ -119,5 +120,19 @@ public class BankAccountServiceImpl implements BankAccountService {
 		bankAccountDTO.setCreationDate(lastUsage);
 		bankAccountDTO.setAccountActive(isActive);
 		return bankAccountDTO;
+	}
+
+	public UpdateResult actualizarDato(String user) {
+
+		Query query = new Query();
+		UpdateResult updateResult;
+		query.addCriteria(Criteria.where("userName").is(user));
+
+		Update updateData = Update.update("accountName", "Cambio dato por consumo de servicio REST");
+
+		updateResult = mongoTemplate.updateMulti(query, updateData, BankAccountDTO.class);
+
+		return updateResult;
+
 	}
 }

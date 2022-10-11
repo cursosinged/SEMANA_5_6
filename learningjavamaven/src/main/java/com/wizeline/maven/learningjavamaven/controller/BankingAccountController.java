@@ -16,6 +16,8 @@ import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -24,13 +26,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mongodb.client.result.UpdateResult;
 import com.wizeline.maven.learningjavamaven.client.AccountsJSONClient;
 import com.wizeline.maven.learningjavamaven.model.BankAccountDTO;
 import com.wizeline.maven.learningjavamaven.model.Post;
+import com.wizeline.maven.learningjavamaven.model.RequestPeticionPutDTO;
 import com.wizeline.maven.learningjavamaven.model.ResponseDTO;
 import com.wizeline.maven.learningjavamaven.service.BankAccountService;
 import com.wizeline.maven.learningjavamaven.utils.CommonServices;
@@ -200,6 +206,40 @@ public class BankingAccountController {
 		HttpHeaders responseHeaders = new HttpHeaders();
 		responseHeaders.set("Content-Type", "application/json; charset=UTF-8");
 		return new ResponseEntity<>(postTest, responseHeaders, HttpStatus.OK);
+	}
+	
+	@PutMapping("/updateAccounts")
+	public ResponseEntity<Object> updateAccounts(@Valid @RequestBody RequestPeticionPutDTO user) {
+
+		UpdateResult updResult;
+		LOGGER.info("The port used is " + port);
+		LOGGER.info(msgProcPeticion);
+		Instant inicioDeEjecucion = Instant.now();
+		LOGGER.info("LearningJava - Procesando peticion HTTP de tipo PUT");
+		LOGGER.info("Retrieving external endpoint ");
+		HttpHeaders responseHeaders;
+		try {
+			responseHeaders = new HttpHeaders();
+			updResult=bankAccountService.actualizarDato(user.getUser());
+		}
+
+		catch (Exception e) {
+			responseHeaders = new HttpHeaders();
+			return new ResponseEntity<Object>("Error en la actualización de datos", responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+
+		}
+
+		LOGGER.info("Numero de registros actualizados: " + updResult.getModifiedCount());
+		Instant finalDeEjecucion = Instant.now();
+
+		LOGGER.info("LearningJava - Cerrando recursos ...");
+		String total = new String(
+				String.valueOf(Duration.between(inicioDeEjecucion, finalDeEjecucion).toMillis()).concat(" segundos."));
+		LOGGER.info("Tiempo de respuesta: ".concat(total));
+
+		responseHeaders.set("Content-Type", "application/json; charset=UTF-8");
+		return new ResponseEntity<Object>("Datos actualizados correctamente", responseHeaders, HttpStatus.OK);
+
 	}
 
 }

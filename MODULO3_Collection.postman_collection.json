@@ -257,6 +257,43 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "updateAccounts",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"user\":\"user3@wizeline.com\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/updateAccounts",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"updateAccounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "consumoRestTemplate",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	]
 }

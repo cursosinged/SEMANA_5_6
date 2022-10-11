@@ -6,6 +6,7 @@
 
 import java.util.List;
 
+import com.mongodb.client.result.UpdateResult;
 import com.wizeline.maven.learningjavamaven.model.BankAccountDTO;
 
 
@@ -30,5 +31,7 @@ public interface BankAccountService {
     void deleteAccounts();
 
     List<BankAccountDTO> getAccountByUser(String user);
+    
+    UpdateResult actualizarDato(String user);
 
 }

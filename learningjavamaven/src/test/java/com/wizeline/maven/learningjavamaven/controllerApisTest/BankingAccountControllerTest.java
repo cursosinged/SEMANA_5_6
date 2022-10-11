@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import com.wizeline.maven.learningjavamaven.controller.BankingAccountController;
 import com.wizeline.maven.learningjavamaven.model.BankAccountDTO;
 import com.wizeline.maven.learningjavamaven.model.Post;
+import com.wizeline.maven.learningjavamaven.model.RequestPeticionPutDTO;
 import com.wizeline.maven.learningjavamaven.model.ResponseDTO;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,6 +33,12 @@ public class BankingAccountControllerTest {
 	private String user = null;
 	private String password = null;
 	private String fecha = null;
+
+	@Mock
+	private ResponseEntity<Object> responseServiceActualizacion;
+
+	@Mock
+	RequestPeticionPutDTO updateUser;
 
 	@Autowired
 	private BankingAccountController bankingAccountController;
@@ -124,6 +131,16 @@ public class BankingAccountControllerTest {
 		LOG.info("Resultado: " + externalUserResponse.getBody().getBody());
 		assertEquals("No info in accountBalance since it is an external user",
 				externalUserResponse.getBody().getBody());
+
+	}
+
+	@Test
+	@DisplayName("Se prueba servicio updateAccounts")
+	public void getActualizaUserTest() {
+		updateUser.setUser(user);
+		responseServiceActualizacion = bankingAccountController.updateAccounts(updateUser);
+		LOG.info("Resultado: " + responseServiceActualizacion.getStatusCode());
+		assertEquals(HttpStatus.OK, responseServiceActualizacion.getStatusCode());
 
 	}
 
