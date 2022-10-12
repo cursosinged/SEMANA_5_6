@@ -1,31 +1,52 @@
 package com.wizeline.maven.learningjavamaven.controllerApisTest;
 
+import static com.wizeline.maven.learningjavamaven.utils.Utils.getCountry;
+import static com.wizeline.maven.learningjavamaven.utils.Utils.pickRandomAccountType;
+import static com.wizeline.maven.learningjavamaven.utils.Utils.randomAcountNumber;
+import static com.wizeline.maven.learningjavamaven.utils.Utils.randomBalance;
+import static com.wizeline.maven.learningjavamaven.utils.Utils.randomInt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wizeline.maven.learningjavamaven.controller.BankingAccountController;
+import com.wizeline.maven.learningjavamaven.enums.Country;
 import com.wizeline.maven.learningjavamaven.model.BankAccountDTO;
 import com.wizeline.maven.learningjavamaven.model.Post;
 import com.wizeline.maven.learningjavamaven.model.RequestPeticionPutDTO;
 import com.wizeline.maven.learningjavamaven.model.ResponseDTO;
+import com.wizeline.maven.learningjavamaven.utils.CommonServices;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
+@AutoConfigureMockMvc
+@TestPropertySource(properties = "spring.mongodb.embedded.version=3.5.5")
 public class BankingAccountControllerTest {
 
 	private static final Logger LOG = Logger.getLogger(BankingAccountControllerTest.class.getName());
@@ -58,6 +79,38 @@ public class BankingAccountControllerTest {
 	@Mock
 	private ResponseEntity<Post> externalUserResponse;
 
+	@Autowired
+	private CommonServices commonServices;
+
+	@Autowired
+	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper mapper;
+
+	@Spy
+	List<ResponseDTO> dataList = new ArrayList<>();
+
+	/*
+	 * NOTA: EN ESTA SECCION SE MUESTRAN LAS PRUEBAS REALIZADAS PARA LOS SERVICIOS
+	 * DESARROLLADOS, ASÍ COMO ESTOS CONTIENEN LA RESPUESTA ESPERADA, TAMBIÉN SE PUEDEN CONSIDERAR
+	 * PRUEBAS DE HAPPY PATH ------
+	 */
+
+	private BankAccountDTO buildBankAccount(String user, boolean isActive, Country country, LocalDateTime lastUsage) {
+		BankAccountDTO bankAccountDTO = new BankAccountDTO();
+		bankAccountDTO.setAccountNumber(randomAcountNumber());
+		bankAccountDTO.setAccountName("Testing Demo Account ".concat(randomInt()));
+		bankAccountDTO.setUserName(user);
+		bankAccountDTO.setAccountBalance(randomBalance());
+		bankAccountDTO.setAccountType(pickRandomAccountType());
+		bankAccountDTO.setCountry(getCountry(country));
+		bankAccountDTO.getLastUsage();
+		bankAccountDTO.setCreationDate(lastUsage);
+		bankAccountDTO.setAccountActive(isActive);
+		return bankAccountDTO;
+	}
+
 	Long datoInicial = (long) 1;
 
 	@BeforeEach
@@ -65,83 +118,182 @@ public class BankingAccountControllerTest {
 
 		if (user == null && password == null) {
 
-			user = "user1@wizeline.com";// para error: "user2@wizeline.com";
-			password = "Pass1@"; // para error: "pass2";
+			user = "user1@wizeline.com";
+			password = "Pass1@";
 			fecha = "07-10-2022";
 
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
-	@DisplayName("Se prueba servicio getUserAccount")
+	@DisplayName("Se prueba servicio GET dado un usuario y un password")
+	public void getUserAccount() {
+		// user=user1@wizeline.com&password=Pass1@&date=12-03-2018
+
+		LOG.info("Creamos un registro de prueba");
+		try {
+			BankAccountDTO bankAccountDTO = buildBankAccount(user, true, Country.MX, LocalDateTime.now());
+			ResponseDTO resultadoLogin;
+
+			resultadoLogin = commonServices.login(user, password);
+			MvcResult resultado = mockMvc.perform(get("/api/getUserAccount").content(user))
+					.andExpect(status().isBadRequest()).andReturn();
+
+			BankAccountDTO[] arregloLogin = mapper.readValue(resultado.getResponse().getContentAsString(),
+					BankAccountDTO[].class);
+			List<BankAccountDTO> listaDatos = Arrays.asList(arregloLogin);
+
+			LOG.info("Resultado: " + listaDatos.toString());
+
+			assertNotNull(listaDatos.stream().map(BankAccountDTO::getUserName).collect(Collectors.toList())
+					.containsAll(List.of(user, "user3@wizeline.com")));
+
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
+
+	}
+
+	@Test
+	@DisplayName("Se prueba servicio getUserAccount (GET)")
 	public void getUserAccountTest() { /// 400
 		// user=user1@wizeline.com&password=Pass1@&date=12-03-2018
-		responseService = (ResponseEntity<ResponseDTO>) bankingAccountController.getUserAccount(user, password, fecha);
-		LOG.info("Resultado: " + responseService.getStatusCode());
-		assertEquals(HttpStatus.OK, responseService.getStatusCode());
+
+		try {
+			ResponseDTO response = new ResponseDTO();
+
+			responseService = (ResponseEntity<ResponseDTO>) bankingAccountController.getUserAccount(user, password,
+					fecha);
+			LOG.info("Resultado: " + responseService.getStatusCode());
+			response.setStatus("OK");
+			dataList.add(response);
+			assertEquals(HttpStatus.OK, responseService.getStatusCode());
+
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
+
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio getAccounts")
-	public void getAccountsTest() { // null
-		responseServices = bankingAccountController.getAccounts();
-		LOG.info("Resultado: " + responseServices.getBody());
+	@DisplayName("Se prueba servicio getAccounts (GET)")
+	public void getAccountsTest() {
 
-		assertNotNull(responseServices.getBody());
+		try {
+			// responseServices = bankingAccountController.getAccounts();
+
+			MvcResult resultado = mockMvc.perform(get("/api/getAccounts")).andExpect(status().isOk()).andReturn();
+
+			BankAccountDTO[] arregloLogin = mapper.readValue(resultado.getResponse().getContentAsString(),
+					BankAccountDTO[].class);
+			List<BankAccountDTO> listaDatos = Arrays.asList(arregloLogin);
+
+			LOG.info("Resultado: " + listaDatos.toString());
+
+			assertNotNull(listaDatos);
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio getAccountByUser")
+	@DisplayName("Se prueba servicio getAccountByUser (GET)")
 	public void getAccountByUserTest() {
-		responseServices = bankingAccountController.getAccountByUser(user);
-		LOG.info("Resultado: " + responseServices.getBody());
+		try {
+			responseServices = bankingAccountController.getAccountByUser(user);
+			LOG.info("Resultado: " + responseServices.getBody());
 
-		assertNotNull(responseServices.getBody());
+			assertNotNull(responseServices.getBody());
+
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio getAccountsGroupByType")
+	@DisplayName("Se prueba servicio getAccountsGroupByType (GET)")
 	public void getAccountsGroupByTypeTest() {
+		try {
+			// responseAccountByType = bankingAccountController.getAccountsGroupByType();
+			LOG.info("Consumimos el servicio");
 
-		responseAccountByType = bankingAccountController.getAccountsGroupByType();
-		LOG.info("Resultado: " + responseAccountByType.getStatusCode());
+			MvcResult resultado = mockMvc.perform(get("/api/getAccountsGroupByType")).andExpect(status().isOk())
+					.andReturn();
 
-		assertEquals(HttpStatus.OK, responseAccountByType.getStatusCode());
+			BankAccountDTO[] arregloLogin = mapper.readValue(resultado.getResponse().getContentAsString(),
+					BankAccountDTO[].class);
+			List<BankAccountDTO> listaDatos = Arrays.asList(arregloLogin);
+
+			LOG.info("Resultado: " + listaDatos.toString());
+
+			assertNotNull(listaDatos);
+
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio deleteAccounts")
+	@DisplayName("Se prueba servicio deleteAccounts (DELETE)")
 	public void deleteAccountsTest() {
 
-		responseServiceGenerico = bankingAccountController.deleteAccounts();
-		LOG.info("Resultado: " + responseServiceGenerico.getStatusCode());
-		assertEquals(HttpStatus.OK, responseServiceGenerico.getStatusCode());
+		try {
+			responseServiceGenerico = bankingAccountController.deleteAccounts();
+			LOG.info("Resultado: " + responseServiceGenerico.getStatusCode());
+			assertEquals(HttpStatus.OK, responseServiceGenerico.getStatusCode());
+
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio getExternalUser/{userId}")
+	@DisplayName("Se prueba servicio getExternalUser/{userId} (GET)")
 	public void getExternalUserTest() {
 
-		externalUserResponse = bankingAccountController.getExternalUser(datoInicial);
-		LOG.info("Resultado: " + externalUserResponse.getBody().getBody());
-		assertEquals("No info in accountBalance since it is an external user",
-				externalUserResponse.getBody().getBody());
+		try {
+			externalUserResponse = bankingAccountController.getExternalUser(datoInicial);
+			LOG.info("Resultado: " + externalUserResponse.getBody().getBody());
+			assertEquals("No info in accountBalance since it is an external user",
+					externalUserResponse.getBody().getBody());
 
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 	}
 
 	@Test
-	@DisplayName("Se prueba servicio updateAccounts")
+	@DisplayName("Se prueba servicio updateAccounts (PUT)")
 	public void getActualizaUserTest() {
-		updateUser.setUser(user);
-		responseServiceActualizacion = bankingAccountController.updateAccounts(updateUser);
-		LOG.info("Resultado: " + responseServiceActualizacion.getStatusCode());
-		assertEquals(HttpStatus.OK, responseServiceActualizacion.getStatusCode());
+		try {
+			updateUser.setUser(user);
+			responseServiceActualizacion = bankingAccountController.updateAccounts(updateUser);
+			LOG.info("Resultado: " + responseServiceActualizacion.getStatusCode());
+			assertEquals(HttpStatus.OK, responseServiceActualizacion.getStatusCode());
 
+		} catch (Exception e) {
+			doThrow(NullPointerException.class).when(dataList).size();
+			Executable accion = () -> dataList.size();
+			assertThrows(NullPointerException.class, accion);
+		}
 	}
 
 }
